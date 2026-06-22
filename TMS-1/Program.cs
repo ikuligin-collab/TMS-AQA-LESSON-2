@@ -6,8 +6,6 @@ var userWon = false;
 
 while (userWon == false)
 {
-    Console.Clear();
-    
     Console.WriteLine("1 - Rock");
     Console.WriteLine("2 - Paper");
     Console.WriteLine("3 - Scissors");
