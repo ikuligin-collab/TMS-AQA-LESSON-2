@@ -1,5 +1,4 @@
-﻿Console.WriteLine("Hello this is Rock Paper Scissors");
-Console.WriteLine("Enter your step");
+﻿Console.WriteLine("Приветствую тебя в игрк КАМЕНЬ-НОЖНИЦЫ_БУМАГА");
 Console.WriteLine("Enter your step");
 
 
