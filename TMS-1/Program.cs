@@ -1,6 +1,31 @@
 ﻿Console.WriteLine("Приветствую тебя в игрк КАМЕНЬ-НОЖНИЦЫ_БУМАГА");
-Console.WriteLine("Enter your step");
+Console.WriteLine("Введите количество раундов, которое хотите сыграть");
 
+// Запрашиваем количество раундов
+int roundsCount; // Создаем переменную для хранения количества раундов введённого пользователем
+
+
+// Создаём цикл для того чтоб при невалидном импуте программа не стопилась
+while (true)
+{
+    Console.WriteLine("Введите количество раундов, которое хотите сыграть:");
+    string? input = Console.ReadLine();
+
+    // Конверт сроки в число
+    if (int.TryParse(input, out roundsCount) && roundsCount > 0)
+    {
+        // Если конвертация успешна (и число больше нуля), выходим из цикла
+        break;
+    }
+
+    // Вывод ошибки
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine("Ошибка! Пожалуйста, введите целое число больше 0.");
+    Console.ResetColor();
+}
+int currentRound = 0; // Создаем переменную для хранения общего количества раундов
+// Выводим 
+Console.WriteLine($"Игра начнется! Текущий раунд: {currentRound}  Всего раундов: {roundsCount}");
 
 var userWon = false;
 
