@@ -3,27 +3,27 @@
 class Game
 {
     private int _roundsPlayed = 0;
+    private int _roundsToPlay;
 
     public int RoundsToPlay
     {
-        get;
+        get { return _roundsToPlay; }
         set
         {
             if (value > 0 && value < 100)
             {
-                RoundsToPlay = value;
+                _roundsToPlay = value;
             }
         }
     }
 
     public bool UserWon { get; private set; }
-    
+
     public bool ComputerWon { get; private set; }
 
 
     public void Play()
     {
-        
         Console.WriteLine("Hello this is Rock Paper Scissors");
         Console.WriteLine("Enter your step");
 
@@ -91,8 +91,6 @@ class Game
                 Console.WriteLine("You win");
                 UserWon = true;
             }
-
-            // Ctrl + K + D 
         } while (_roundsPlayed < RoundsToPlay);
     }
 }
