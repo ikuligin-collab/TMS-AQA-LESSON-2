@@ -2,97 +2,142 @@
 
 class Game
 {
+    // Модификаторы доступа: свойства нужны снаружи, внутренние счётчики скрыты
+    public Player HumanPlayer { get; }
+    public Player ComputerPlayer { get; }
+    
     private int _roundsPlayed = 0;
-
+    private int _roundsToPlay;
+    
     public int RoundsToPlay
     {
-        get;
-        set
+        get => _roundsToPlay;
+        private set
         {
             if (value > 0 && value < 100)
             {
-                RoundsToPlay = value;
+                _roundsToPlay = value;
+            }
+            else
+            {
+                _roundsToPlay = 3; // Значение по умолчанию, если что-то пошло не так
             }
         }
     }
 
-    public bool UserWon { get; private set; }
-    
-    public bool ComputerWon { get; private set; }
+    // Пункт 1: Конструктор принимает игроков и количество раундов
+    public Game(Player humanPlayer, Player computerPlayer, int roundsToPlay)
+    {
+        HumanPlayer = humanPlayer;
+        ComputerPlayer = computerPlayer;
+        RoundsToPlay = roundsToPlay;
+    }
 
-
+    // Пункт 7: Основной игровой цикл
     public void Play()
     {
-        
-        Console.WriteLine("Hello this is Rock Paper Scissors");
-        Console.WriteLine("Enter your step");
+        Console.WriteLine($"Играют: {HumanPlayer.Name} против {ComputerPlayer.Name}");
+        Console.WriteLine($"Игра до {RoundsToPlay} раундов.\n");
 
-        UserWon = false;
-
-        do
+        while (_roundsPlayed < RoundsToPlay)
         {
-            Console.WriteLine("1 - Rock");
-            Console.WriteLine("2 - Paper");
-            Console.WriteLine("3 - Scissors");
-            Console.WriteLine("0 - Exit");
+            Move playerMove = ReadFromConsole();
+
+            // Пункт 3: Если ход невалидный, он не засчитывается, раунд не увеличивается
+            if (!playerMove.IsValid())
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Некорректный ход! Выберите число от 1 до 3.");
+                Console.ResetColor();
+                continue; // Возвращаемся в начало цикла, не меняя счётчики
+            }
+
+            // Ход компьютера генерируется ТОЛЬКО если ход игрока верный
+            Move computerMove = GenerateRandom();
 
             _roundsPlayed++;
 
-            var userInput = Console.ReadLine(); // "5"
+            // Пункт 5: Обработка результатов раунда отдельным методом
+            GameResult result = ProcessRound(playerMove, computerMove);
 
-            int userChoice; // there is no value
+            // Пункт 8: Вывод информации после каждого раунда
+            result.Print(_roundsPlayed);
+            Console.WriteLine($"Текущий счёт: {HumanPlayer.Name} [{HumanPlayer.Score}] : [{ComputerPlayer.Score}] {ComputerPlayer.Name}");
+        }
 
-            // parse user input = string into int 
-            // put result to out result param
-            // return if parse was successful
+        // Пункт 8: Итоги всей игры после завершения цикла
+        PrintFinalResults();
+    }
 
-            if (!int.TryParse(userInput, out userChoice) || !(userChoice >= 0 && userChoice <= 3))
-            {
-                Console.WriteLine(userChoice);
-                Console.WriteLine("Invalid input");
-                continue;
-            }
+    // Внутренний метод для чтения хода человека (скрыт через private)
+    private Move ReadFromConsole()
+    {
+        Console.WriteLine("\nСделайте ваш ход:");
+        Console.WriteLine("1 - Камень");
+        Console.WriteLine("2 - Бумага");
+        Console.WriteLine("3 - Ножницы");
+        Console.Write("Ваш выбор: ");
 
-            if (userChoice == 0)
-            {
-                return;
-            }
+        int.TryParse(Console.ReadLine(), out int choice);
+        return new Move(choice);
+    }
 
-            var random = new Random();
-            var computerChoice = random.Next(1, 4); // generate random number 1-3
+    // Внутренний метод для генерации хода компьютера (скрыт через private)
+    private Move GenerateRandom()
+    {
+        Random random = new Random();
+        return new Move(random.Next(1, 4)); // генерация от 1 до 3
+    }
 
-            string userChoiceString;
-            switch (userChoice)
-            {
-                case 1:
-                    Console.WriteLine("Rock");
-                    userChoiceString = "Rock";
-                    break;
-                case 2:
-                    userChoiceString = "Paper";
-                    break;
-                default:
-                    userChoiceString = "Scissors";
-                    break;
-            }
+    // Пункт 5: Метод определяет победителя раунда, начисляет очки и возвращает GameResult
+    private GameResult ProcessRound(Move playerMove, Move computerMove)
+    {
+        string resultMessage;
 
-            Console.WriteLine($"You chose {userChoiceString}");
+        if (playerMove.Value == computerMove.Value)
+        {
+            resultMessage = "Ничья в раунде!";
+        }
+        // Условия победы игрока (1-Камень бьет 3-Ножницы, 2-Бумага бьет 1-Камень, 3-Ножницы бьют 2-Бумагу)
+        else if ((playerMove.Value == 1 && computerMove.Value == 3) ||
+                 (playerMove.Value == 2 && computerMove.Value == 1) ||
+                 (playerMove.Value == 3 && computerMove.Value == 2))
+        {
+            HumanPlayer.Score++;
+            resultMessage = $"{HumanPlayer.Name} выиграл(а) раунд!";
+        }
+        else
+        {
+            ComputerPlayer.Score++;
+            resultMessage = $"{ComputerPlayer.Name} выиграл раунд!";
+        }
 
-            string computerChoiceString = computerChoice switch { 1 => "Rock", 2 => "Paper", _ => "Scissors" };
+        return new GameResult(playerMove, computerMove, resultMessage);
+    }
 
-            Console.WriteLine($"Computer chose {computerChoiceString}");
+    // Пункт 8: Печать итогового результата игры
+    private void PrintFinalResults()
+    {
+        Console.WriteLine("\n=================================");
+        Console.WriteLine("===        ИГРА ОКОНЧЕНА      ===");
+        Console.WriteLine("=================================");
+        Console.WriteLine($"Итоговый счёт: {HumanPlayer.Name} [{HumanPlayer.Score}] : [{ComputerPlayer.Score}] {ComputerPlayer.Name}");
 
-            if (computerChoice == userChoice)
-            {
-            }
-            else if (userChoice == 1 && computerChoice == 3 || userChoice == 2 && computerChoice == 1 ||
-                     userChoice == 3 && computerChoice == 2)
-            {
-                Console.WriteLine("You win");
-                UserWon = true;
-            }
-
-            // Ctrl + K + D 
-        } while (_roundsPlayed < RoundsToPlay);
+        if (HumanPlayer.Score > ComputerPlayer.Score)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"Победитель игры: {HumanPlayer.Name}! Поздравляем!");
+        }
+        else if (ComputerPlayer.Score > HumanPlayer.Score)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Победитель игры: {ComputerPlayer.Name}!");
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("Общий результат игры: Ничья!");
+        }
+        Console.ResetColor();
     }
 }
