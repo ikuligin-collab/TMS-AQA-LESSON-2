@@ -1,10 +1,14 @@
 ﻿namespace TMS_1;
 
+
 class Game
 {
+    public Player HumanPlayer { get; private set; }
+    public Player ComputerPlayer { get; private set; }
+    
     private int _roundsPlayed = 0;
     private int _roundsToPlay;
-
+    
     public int RoundsToPlay
     {
         get { return _roundsToPlay; }
@@ -18,23 +22,29 @@ class Game
     }
 
     public bool UserWon { get; private set; }
-
     public bool ComputerWon { get; private set; }
-
+    
+    // Конструктор, который принимает игроков и количество раундов при создании игры
+    public Game(Player humanPlayer, Player computerPlayer, int roundsToPlay)
+    {
+        HumanPlayer = humanPlayer;
+        ComputerPlayer = computerPlayer;
+        RoundsToPlay = roundsToPlay; // Используем свойство, чтобы сработала проверка (value > 0 && value < 100)
+    }
 
     public void Play()
     {
-        Console.WriteLine("Hello this is Rock Paper Scissors");
-        Console.WriteLine("Enter your step");
+        Console.WriteLine($"{HumanPlayer.Name} VS {ComputerPlayer.Name}");
+        Console.WriteLine("Сделайте ход");
 
         UserWon = false;
 
         do
         {
-            Console.WriteLine("1 - Rock");
-            Console.WriteLine("2 - Paper");
-            Console.WriteLine("3 - Scissors");
-            Console.WriteLine("0 - Exit");
+            Console.WriteLine("1 - Камень");
+            Console.WriteLine("2 - Бумага");
+            Console.WriteLine("3 - Ножницы");
+            Console.WriteLine("0 - Выход");
 
             _roundsPlayed++;
 
@@ -65,32 +75,36 @@ class Game
             switch (userChoice)
             {
                 case 1:
-                    Console.WriteLine("Rock");
-                    userChoiceString = "Rock";
+                    Console.WriteLine("Камень");
+                    userChoiceString = "Камень";
                     break;
                 case 2:
-                    userChoiceString = "Paper";
+                    userChoiceString = "Бумага";
                     break;
                 default:
-                    userChoiceString = "Scissors";
+                    userChoiceString = "Ножницы";
                     break;
             }
 
-            Console.WriteLine($"You chose {userChoiceString}");
+            Console.WriteLine($"{HumanPlayer.Name} выбрал/а {userChoiceString}");
 
             string computerChoiceString = computerChoice switch { 1 => "Rock", 2 => "Paper", _ => "Scissors" };
 
-            Console.WriteLine($"Computer chose {computerChoiceString}");
+            Console.WriteLine($"{ComputerPlayer.Name} выбрал {computerChoiceString}");
 
             if (computerChoice == userChoice)
             {
+                Console.WriteLine("Ничья!");
             }
             else if (userChoice == 1 && computerChoice == 3 || userChoice == 2 && computerChoice == 1 ||
                      userChoice == 3 && computerChoice == 2)
             {
-                Console.WriteLine("You win");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"{HumanPlayer.Name} выиграл/а раунд");
                 UserWon = true;
+                Console.ResetColor();
             }
+            
         } while (_roundsPlayed < RoundsToPlay);
     }
 }
